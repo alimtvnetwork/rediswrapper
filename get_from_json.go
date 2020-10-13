@@ -7,7 +7,7 @@ import (
 // GetFromJson will bind the json data with the jsonObj.
 // If Get encounters any errors, it will return the error message.
 func (rw *RedisWrapper) GetFromJson(key string, jsonObj interface{}) error {
-	data, err := rw.rdb.Get(rw.ctx, key).Result()
+	data, err := rw.GetFromBytes(key)
 	if err != nil {
 		return err
 	}

@@ -4,12 +4,20 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/evatix-go/rediswrapper"
 	"github.com/go-redis/redis/v8"
 	"log"
 	"time"
 )
 
 var ctx = context.Background()
+
+var redisClientOptions = &redis.Options{
+	Addr:     "localhost:6379",
+	Password: "", // no password set
+	DB:       0,  // use default DB
+}
+
 func main()  {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
@@ -149,4 +157,12 @@ func main()  {
 		panic(err)
 	}
 	fmt.Println("var1", var1Val)
+
+	rdbWrapper := rediswrapper.NewClient(context.Background() ,redisClientOptions)
+	err = rdbWrapper.SaveBytes("byte_key", []byte("test bytes"))
+	if err != nil {
+		log.Println("SaveBytes error", err.Error())
+	} else {
+		log.Println("Bytes were saved.")
+	}
 }

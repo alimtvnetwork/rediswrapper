@@ -2,10 +2,10 @@ package rediswrapper_test
 
 import (
 	"context"
-	"fmt"
 	"github.com/bxcodec/faker/v3"
 	"github.com/evatix-go/rediswrapper"
 	"github.com/go-redis/redis/v8"
+	"strings"
 	"testing"
 )
 
@@ -23,6 +23,12 @@ var redisClientOptions = &redis.Options{
 	DB:       0,  // use default DB
 }
 
+var invalidRedisClientOptions = &redis.Options{
+	Addr:     "localhost:6399",
+	Password: faker.Password(), // no password set
+	DB:       10,  // use default DB
+}
+
 func TestSaveAsJson(t *testing.T) {
 	rdb := rediswrapper.NewClient(context.Background() ,redisClientOptions)
 
@@ -33,9 +39,16 @@ func TestSaveAsJson(t *testing.T) {
 	}
 
 	key := faker.Name()
-	fmt.Println(key, sampleJsonData)
 	err = rdb.SaveAsJson(key, sampleJsonData)
 	if err != nil {
 		t.Errorf("SaveAsJson failed %s", err.Error())
+	}
+
+	rdbInvalid := rediswrapper.NewClient(context.Background() ,invalidRedisClientOptions)
+	err = rdbInvalid.SaveAsJson(key, sampleJsonData)
+	if err != nil {
+		if !strings.Contains(err.Error(), "connection refused") {
+			t.Error("SaveAsJson failed", err.Error())
+		}
 	}
 }

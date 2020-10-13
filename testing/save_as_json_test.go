@@ -1,6 +1,8 @@
 package rediswrapper_test
 
 import (
+	"context"
+	"fmt"
 	"github.com/bxcodec/faker/v3"
 	"github.com/evatix-go/rediswrapper"
 	"github.com/go-redis/redis/v8"
@@ -15,12 +17,14 @@ type SampleJsonData struct {
 	Longitude          float32 `faker:"long"`
 }
 
+var redisClientOptions = &redis.Options{
+	Addr:     "localhost:6379",
+	Password: "", // no password set
+	DB:       0,  // use default DB
+}
+
 func TestSaveAsJson(t *testing.T) {
-	rdb := rediswrapper.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
+	rdb := rediswrapper.NewClient(context.Background() ,redisClientOptions)
 
 	sampleJsonData := SampleJsonData{}
 	err := faker.FakeData(&sampleJsonData)
@@ -28,7 +32,8 @@ func TestSaveAsJson(t *testing.T) {
 		t.Errorf("sample data build error %s", err.Error())
 	}
 
-	key := faker.ID
+	key := faker.Name()
+	fmt.Println(key, sampleJsonData)
 	err = rdb.SaveAsJson(key, sampleJsonData)
 	if err != nil {
 		t.Errorf("SaveAsJson failed %s", err.Error())

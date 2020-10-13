@@ -165,4 +165,11 @@ func main()  {
 	} else {
 		log.Println("Bytes were saved.")
 	}
+
+	byteData, err := rdbWrapper.GetFromBytes("byte_key")
+	if err != nil {
+		log.Println("GetFromBytes error", err.Error())
+	} else {
+		log.Println("GetFromBytes returned", string(byteData))
+	}
 }

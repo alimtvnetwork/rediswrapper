@@ -91,10 +91,10 @@ func main()  {
 		// SORT list LIMIT 0 2 ASC
 		rdb.Del(ctx, "plist")
 		rdb.LPush(ctx, "plist", 60)
-		rdb.LPush(ctx, "plist", 40)
+		rdb.LPush(ctx, "plist", 40, 100)
 		rdb.LPush(ctx, "plist", 5)
 
-		vals, err := rdb.Sort(ctx, "plist", &redis.Sort{Offset: 0, Count: 2, Order: "ASC"}).Result()
+		vals, err := rdb.Sort(ctx, "plist", &redis.Sort{Offset: 0, Order: "ASC"}).Result()
 		if err != nil {
 			log.Println("redis sort error", err.Error())
 		} else {
@@ -103,7 +103,7 @@ func main()  {
 	}
 
 	rdb.Del(ctx, "list")
-	rdb.LPush(ctx, "list", 60)
+	rdb.LPush(ctx, "list", 60, 70)
 	rdb.LPush(ctx, "list", 40)
 	rdb.LPush(ctx, "list", 5)
 

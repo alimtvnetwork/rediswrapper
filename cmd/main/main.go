@@ -18,6 +18,11 @@ var redisClientOptions = &redis.Options{
 	DB:       0,  // use default DB
 }
 
+type SampleData struct {
+	Email              string
+	DomainName         string
+}
+
 func main()  {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
@@ -171,5 +176,17 @@ func main()  {
 		log.Println("GetFromBytes error", err.Error())
 	} else {
 		log.Println("GetFromBytes returned", string(byteData))
+	}
+
+	sampleItems := make([]SampleData, 0)
+	sampleItems = append(sampleItems, SampleData{"a1@google.com", "google.com"})
+	sampleItems = append(sampleItems, SampleData{"a1@yahoo.com", "yahoo.com"})
+
+	err = rdbWrapper.SaveArray("cocoa_objects", sampleItems)
+	//err = rdbWrapper.SaveArray("cocoa", []string{"a", "b"})
+	if err != nil {
+		log.Println("SaveArray error", err.Error())
+	} else {
+		log.Println("SaveArray stored items.")
 	}
 }

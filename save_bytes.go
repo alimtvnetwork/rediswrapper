@@ -1,6 +1,6 @@
 package rediswrapper
 
-// SaveAsJson will store bytes in the redis server.
+// SaveBytes will store bytes in the redis server.
 // If Get encounters any errors, it will return the error message.
 
 func (rw *RedisWrapper) SaveBytes(key string, byteData []byte) error {

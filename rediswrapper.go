@@ -10,7 +10,7 @@ var(
 )
 
 type RedisWrapper struct {
-	rdb *redis.Client
+	*redis.Client
 }
 
 // NewClient returns a client wrapper to the Redis Server specified by Options.

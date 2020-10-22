@@ -1,13 +1,14 @@
-package rediswrapper_test
+package tests
 
 import (
 	"context"
 	"github.com/bxcodec/faker/v3"
 	"github.com/evatix-go/rediswrapper"
+	"strings"
 	"testing"
 )
 
-func TestGetFromJson(t *testing.T) {
+func TestSaveAsJson(t *testing.T) {
 	rdb := rediswrapper.NewClient(context.Background() ,redisClientOptions)
 
 	sampleJsonData := SampleJsonData{}
@@ -22,14 +23,11 @@ func TestGetFromJson(t *testing.T) {
 		t.Errorf("SaveAsJson failed %s", err.Error())
 	}
 
-	sampleJsonDataReturned := SampleJsonData{}
-	err = rdb.GetFromJson(key, &sampleJsonDataReturned)
-
+	rdbInvalid := rediswrapper.NewClient(context.Background() ,invalidRedisClientOptions)
+	err = rdbInvalid.SaveAsJson(key, sampleJsonData)
 	if err != nil {
-		t.Errorf("GetFromJson failed %s", err.Error())
-	}
-
-	if sampleJsonData != sampleJsonDataReturned {
-		t.Errorf("GetFromJson didn't return the same data for the key %s", key)
+		if !strings.Contains(err.Error(), "connection refused") {
+			t.Error("SaveAsJson failed", err.Error())
+		}
 	}
 }

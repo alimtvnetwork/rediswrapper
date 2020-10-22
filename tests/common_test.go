@@ -1,4 +1,4 @@
-package rediswrapper_test
+package tests
 
 import (
 	"github.com/bxcodec/faker/v3"

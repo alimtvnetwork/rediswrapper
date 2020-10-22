@@ -4,12 +4,20 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/evatix-go/rediswrapper"
 	"github.com/go-redis/redis/v8"
 	"log"
 	"time"
 )
 
 var ctx = context.Background()
+
+var redisClientOptions = &redis.Options{
+	Addr:     "localhost:6379",
+	Password: "", // no password set
+	DB:       0,  // use default DB
+}
+
 func main()  {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
@@ -83,10 +91,10 @@ func main()  {
 		// SORT list LIMIT 0 2 ASC
 		rdb.Del(ctx, "plist")
 		rdb.LPush(ctx, "plist", 60)
-		rdb.LPush(ctx, "plist", 40)
+		rdb.LPush(ctx, "plist", 40, 100)
 		rdb.LPush(ctx, "plist", 5)
 
-		vals, err := rdb.Sort(ctx, "plist", &redis.Sort{Offset: 0, Count: 2, Order: "ASC"}).Result()
+		vals, err := rdb.Sort(ctx, "plist", &redis.Sort{Offset: 0, Order: "ASC"}).Result()
 		if err != nil {
 			log.Println("redis sort error", err.Error())
 		} else {
@@ -95,7 +103,7 @@ func main()  {
 	}
 
 	rdb.Del(ctx, "list")
-	rdb.LPush(ctx, "list", 60)
+	rdb.LPush(ctx, "list", 60, 70)
 	rdb.LPush(ctx, "list", 40)
 	rdb.LPush(ctx, "list", 5)
 
@@ -149,4 +157,19 @@ func main()  {
 		panic(err)
 	}
 	fmt.Println("var1", var1Val)
+
+	rdbWrapper := rediswrapper.NewClient(context.Background() ,redisClientOptions)
+	err = rdbWrapper.SaveBytes("byte_key", []byte("test bytes"))
+	if err != nil {
+		log.Println("SaveBytes error", err.Error())
+	} else {
+		log.Println("Bytes were saved.")
+	}
+
+	byteData, err := rdbWrapper.GetFromBytes("byte_key")
+	if err != nil {
+		log.Println("GetFromBytes error", err.Error())
+	} else {
+		log.Println("GetFromBytes returned", string(byteData))
+	}
 }

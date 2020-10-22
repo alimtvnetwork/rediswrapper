@@ -12,5 +12,5 @@ func (rw *RedisWrapper) SaveAsJson(key string, jsonData interface{}) error {
 		return err
 	}
 
-	return rw.rdb.Set(rw.ctx, key, jsonDataBytes, 0).Err()
+	return rw.SaveBytes(key, jsonDataBytes)
 }

@@ -2,14 +2,15 @@ package tests
 
 import (
 	"context"
-	"github.com/bxcodec/faker/v3"
-	"github.com/evatix-go/rediswrapper"
-	"strings"
 	"testing"
+
+	"github.com/bxcodec/faker/v3"
+
+	"github.com/evatix-go/rediswrapper"
 )
 
 func TestSaveAsJson(t *testing.T) {
-	rdb := rediswrapper.NewClient(context.Background() ,redisClientOptions)
+	rdb := rediswrapper.New(context.Background(), redisClientOptions)
 
 	sampleJsonData := SampleJsonData{}
 	err := faker.FakeData(&sampleJsonData)
@@ -18,16 +19,10 @@ func TestSaveAsJson(t *testing.T) {
 	}
 
 	key := faker.Name()
-	err = rdb.SaveAsJson(key, sampleJsonData)
-	if err != nil {
-		t.Errorf("SaveAsJson failed %s", err.Error())
-	}
+	err2 := rdb.SaveAsMarshal(key, sampleJsonData)
+	err2.HasError()
 
-	rdbInvalid := rediswrapper.NewClient(context.Background() ,invalidRedisClientOptions)
-	err = rdbInvalid.SaveAsJson(key, sampleJsonData)
-	if err != nil {
-		if !strings.Contains(err.Error(), "connection refused") {
-			t.Error("SaveAsJson failed", err.Error())
-		}
-	}
+	rdbInvalid := rediswrapper.New(context.Background(), invalidRedisClientOptions)
+	err3 := rdbInvalid.SaveAsMarshal(key, sampleJsonData)
+	err3.HandleError()
 }

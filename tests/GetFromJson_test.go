@@ -2,13 +2,15 @@ package tests
 
 import (
 	"context"
-	"github.com/bxcodec/faker/v3"
-	"github.com/evatix-go/rediswrapper"
 	"testing"
+
+	"github.com/bxcodec/faker/v3"
+
+	"github.com/evatix-go/rediswrapper"
 )
 
 func TestGetFromJson(t *testing.T) {
-	rdb := rediswrapper.NewClient(context.Background() ,redisClientOptions)
+	rdb := rediswrapper.New(context.Background(), redisClientOptions)
 
 	sampleJsonData := SampleJsonData{}
 	err := faker.FakeData(&sampleJsonData)
@@ -17,19 +19,10 @@ func TestGetFromJson(t *testing.T) {
 	}
 
 	key := faker.Name()
-	err = rdb.SaveAsJson(key, sampleJsonData)
-	if err != nil {
-		t.Errorf("SaveAsJson failed %s", err.Error())
-	}
+	err2 := rdb.SaveAsMarshal(key, sampleJsonData)
+	err2.HandleError()
 
 	sampleJsonDataReturned := SampleJsonData{}
-	err = rdb.GetFromJson(key, &sampleJsonDataReturned)
-
-	if err != nil {
-		t.Errorf("GetFromJson failed %s", err.Error())
-	}
-
-	if sampleJsonData != sampleJsonDataReturned {
-		t.Errorf("GetFromJson didn't return the same data for the key %s", key)
-	}
+	err3 := rdb.GetAsUnmarshal(key, &sampleJsonDataReturned)
+	err3.HandleError()
 }

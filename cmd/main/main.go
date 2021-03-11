@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"github.com/evatix-go/rediswrapper"
+
 	"github.com/go-redis/redis/v8"
-	"log"
-	"time"
+	"gitlab.com/evatix-go/core/coredata/corestr"
+
+	"github.com/evatix-go/rediswrapper"
 )
 
 var ctx = context.Background()
@@ -18,158 +18,56 @@ var redisClientOptions = &redis.Options{
 	DB:       0,  // use default DB
 }
 
-func main()  {
-	rdb := redis.NewClient(&redis.Options{
+func main() {
+	options := &redis.Options{
 		Addr:     "localhost:6379",
 		Password: "", // no password set
 		DB:       0,  // use default DB
-	})
-
-	pong, err := rdb.Ping(ctx).Result()
-	if err != nil {
-		log.Println("redis ping error", err.Error())
-	} else {
-		fmt.Println("ping result", pong)
 	}
 
-	err = rdb.Set(ctx, "fruit", "Apple", 0).Err()
-	if err != nil {
-		panic(err)
-	}
+	// rdb := redis.NewClient(options)
+	//
+	// pong, err := rdb.Ping(ctx).Result()
+	// if err != nil {
+	// 	log.Println("redis ping error", err.Error())
+	// } else {
+	// 	fmt.Println("ping result", pong)
+	// }
 
-	val, err := rdb.Get(ctx, "fruit").Result()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("fruit", val)
+	wrapper := rediswrapper.New(ctx, options)
+	collection1 := corestr.NewCollection(100)
 
-	val2, err := rdb.Get(ctx, "key2").Result()
-	if err == redis.Nil {
-		fmt.Println("key2 does not exist")
-	} else if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("key2", val2)
-	}
+	collection1.Add("alim 1").
+		Add("alim 2").
+		Add("alim 3")
+	fmt.Println(collection1)
+	charMap := collection1.HashsetAsIs()
+	fmt.Println(charMap.String())
+	wrapper.SaveStrHashset("B", charMap)
+	collect2 := wrapper.GetStrHashset("B")
+	collect2.ErrorWrapper.HandleError()
 
-	// SET key value EX 10 NX
-	set, err := rdb.SetNX(ctx, "volatile_key", 1234, 2*time.Second).Result()
-	if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("volatile_key stored", set)
-	}
+	fmt.Println(collect2)
 
-	var first string
+	fmt.Println(wrapper.GetString("A").Value)
 
-	// Taking input from user
-	fmt.Scanln(&first)
-	fmt.Println("Enter Second Last Name: ")
+	wrapper.DeleteManyKeys("alist", "aSet1")
+	wrapper.AddListStringItems("alist", "alim 1")
 
-	val, err = rdb.Get(ctx, "volatile_key").Result()
-	if err == redis.Nil {
-		fmt.Println("volatile_key doesn't exist")
-	} else {
-		fmt.Println("volatile_key", val)
-	}
+	fmt.Println(wrapper.GetListAsCollection("alist").Collection)
 
-	// SET key value keepttl NX
-	//rdb.SetNX(ctx, "list", []string{"X", "d", "a"}, redis.KeepTTL).Result()
-	t , _ := json.Marshal([]string{"X", "d", "a"})
-	_, err = rdb.Set(ctx, "list", string(t), 0).Result()
-	if err != nil {
-		log.Println("listValues set error", err.Error())
-	} else {
-		listValues, err := rdb.Get(ctx, "list").Result()
-		if err != nil {
-			log.Println("listValues error", err.Error())
-		} else {
-			log.Println("listValues", listValues)
-		}
+	wrapper.AddSetItems("aSet1", "alim 1", "alim 2")
 
+	fmt.Println("Aset", wrapper.GetSetItemsAsCollection("aSet1").Collection)
 
-		// SORT list LIMIT 0 2 ASC
-		rdb.Del(ctx, "plist")
-		rdb.LPush(ctx, "plist", 60)
-		rdb.LPush(ctx, "plist", 40, 100)
-		rdb.LPush(ctx, "plist", 5)
+	akey2 := "akey2"
+	wrapper.MarshalSaveMany(akey2, collect2, collect2, collect2)
+	fmt.Println(akey2, wrapper.GetString(akey2))
 
-		vals, err := rdb.Sort(ctx, "plist", &redis.Sort{Offset: 0, Order: "ASC"}).Result()
-		if err != nil {
-			log.Println("redis sort error", err.Error())
-		} else {
-			log.Println("sorted result", vals)
-		}
-	}
+	collect3 := corestr.EmptyHashset()
 
-	rdb.Del(ctx, "list")
-	rdb.LPush(ctx, "list", 60, 70)
-	rdb.LPush(ctx, "list", 40)
-	rdb.LPush(ctx, "list", 5)
+	wrapper.GetUnmarshalMany(akey2, collect3)
 
-	// ZRANGEBYSCORE zset -inf +inf WITHSCORES LIMIT 0 2
-	vals, err := rdb.ZRangeByScoreWithScores(ctx, "list", &redis.ZRangeBy{
-		Min: "-inf",
-		Max: "+inf",
-		Offset: 0,
-		Count: 2,
-	}).Result()
+	fmt.Println(collect3)
 
-	if err != nil {
-		log.Println("ZRangeByScoreWithScores error", err.Error())
-	} else {
-		log.Println("ZRangeByScoreWithScores result", vals)
-	}
-
-	// ZINTERSTORE out 2 zset1 zset2 WEIGHTS 2 3 AGGREGATE SUM
-	res, err := rdb.ZInterStore(ctx, "out", &redis.ZStore{
-		Keys: []string{"zset1", "zset2"},
-		Weights: []float64{2, 3},
-	}).Result()
-
-	if err != nil {
-		log.Println("ZInterStore error", err.Error())
-	} else {
-		log.Println("ZInterStore result", res)
-	}
-
-	// EVAL "return {KEYS[1],ARGV[1]}" 1 "key" "hello"
-	evalResults, err := rdb.Eval(ctx, "return {KEYS[1],ARGV[1]}", []string{"tey"}, "trello").Result()
-
-	if err != nil {
-		log.Println("Eval error", err.Error())
-	} else {
-		log.Println("Eval result", evalResults)
-	}
-
-
-	// custom command
-	doRes, err := rdb.Do(ctx, "set", "var1", "value1").Result()
-
-	if err != nil {
-		log.Println("doRes error", err.Error())
-	} else {
-		log.Println("doRes result", doRes)
-	}
-
-	var1Val, err := rdb.Get(ctx, "var1").Result()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("var1", var1Val)
-
-	rdbWrapper := rediswrapper.NewClient(context.Background() ,redisClientOptions)
-	err = rdbWrapper.SaveBytes("byte_key", []byte("test bytes"))
-	if err != nil {
-		log.Println("SaveBytes error", err.Error())
-	} else {
-		log.Println("Bytes were saved.")
-	}
-
-	byteData, err := rdbWrapper.GetFromBytes("byte_key")
-	if err != nil {
-		log.Println("GetFromBytes error", err.Error())
-	} else {
-		log.Println("GetFromBytes returned", string(byteData))
-	}
 }

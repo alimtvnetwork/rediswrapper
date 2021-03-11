@@ -6,11 +6,11 @@ import (
 )
 
 type SampleJsonData struct {
-	Email              string  `faker:"email"`
-	DomainName         string  `faker:"domain_name"`
-	IPV4               string  `faker:"ipv4"`
-	Latitude           float32 `faker:"lat"`
-	Longitude          float32 `faker:"long"`
+	Email      string  `faker:"email"`
+	DomainName string  `faker:"domain_name"`
+	IPV4       string  `faker:"ipv4"`
+	Latitude   float32 `faker:"lat"`
+	Longitude  float32 `faker:"long"`
 }
 
 var redisClientOptions = &redis.Options{
@@ -22,5 +22,5 @@ var redisClientOptions = &redis.Options{
 var invalidRedisClientOptions = &redis.Options{
 	Addr:     "localhost:6399",
 	Password: faker.Password(), // no password set
-	DB:       10,  // use default DB
+	DB:       10,               // use default DB
 }

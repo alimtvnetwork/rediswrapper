@@ -5,12 +5,15 @@ import (
 	"gitlab.com/evatix-go/errorwrapper/errdata/errstr"
 )
 
-func (rw *Wrapper) GetSetItemsAsCollection(key string) *errstr.Collection {
-	errStrResult := rw.GetSetItemsAsSlice(key)
+// UniqueListAsCollection
+//
+// Retrieve items set by SetItems method.
+func (rw *Wrapper) UniqueListAsCollection(key string) *errstr.Collection {
+	errStrResult := rw.UniqueListSlice(key)
 
 	return &errstr.Collection{
 		Collection: corestr.NewCollectionUsingStrings(
-			errStrResult.Values,
+			errStrResult.ValueMust(),
 			false),
 		ErrorWrapper: errStrResult.ErrorWrapper,
 	}

@@ -5,6 +5,8 @@ import (
 	"gitlab.com/evatix-go/core/coredata/corestr"
 	"gitlab.com/evatix-go/errorwrapper/errdata/errstr"
 	"gitlab.com/evatix-go/errorwrapper/errnew"
+
+	"github.com/evatix-go/rediswrapper/internal/rediserrwrapper"
 )
 
 func (rw *Wrapper) GetStringsCollection(
@@ -17,7 +19,7 @@ func (rw *Wrapper) GetStringsCollection(
 	if statusCmd == nil {
 		return &errstr.Collection{
 			Collection:   nil,
-			ErrorWrapper: rw.statusCmdNullError(),
+			ErrorWrapper: rediserrwrapper.NullEmptyStringCmd,
 		}
 	}
 

@@ -1,40 +1,15 @@
 package main
 
 import (
-	"context"
 	"fmt"
 
-	"github.com/go-redis/redis/v8"
 	"gitlab.com/evatix-go/core/coredata/corestr"
 
-	"github.com/evatix-go/rediswrapper"
+	"github.com/evatix-go/rediswrapper/redisdefaults"
 )
 
-var ctx = context.Background()
-
-var redisClientOptions = &redis.Options{
-	Addr:     "localhost:6379",
-	Password: "", // no password set
-	DB:       0,  // use default DB
-}
-
 func main() {
-	options := &redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	}
-
-	// rdb := redis.NewClient(options)
-	//
-	// pong, err := rdb.Ping(ctx).Result()
-	// if err != nil {
-	// 	log.Println("redis ping error", err.Error())
-	// } else {
-	// 	fmt.Println("ping result", pong)
-	// }
-
-	wrapper := rediswrapper.New(ctx, options)
+	wrapper := redisdefaults.NewClientWrapper()
 	collection1 := corestr.NewCollection(100)
 
 	collection1.Add("alim 1").
@@ -54,11 +29,11 @@ func main() {
 	wrapper.DeleteManyKeys("alist", "aSet1")
 	wrapper.AddListStringItems("alist", "alim 1")
 
-	fmt.Println(wrapper.GetListAsCollection("alist").Collection)
+	fmt.Println(wrapper.ListAsCollection("alist").Collection)
 
-	wrapper.AddSetItems("aSet1", "alim 1", "alim 2")
+	wrapper.AddUniqueAnysToKey("aSet1", "alim 1", "alim 2")
 
-	fmt.Println("Aset", wrapper.GetSetItemsAsCollection("aSet1").Collection)
+	fmt.Println("Aset", wrapper.UniqueListAsCollection("aSet1").Collection)
 
 	akey2 := "akey2"
 	wrapper.MarshalSaveMany(akey2, collect2, collect2, collect2)

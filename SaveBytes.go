@@ -2,6 +2,7 @@ package rediswrapper
 
 import (
 	"gitlab.com/evatix-go/errorwrapper"
+	"gitlab.com/evatix-go/errorwrapper/errtype"
 )
 
 // SaveBytes will store bytes in the redis server.
@@ -16,5 +17,8 @@ func (rw *Wrapper) SaveBytes(
 		byteData,
 		0)
 
-	return rw.statusCmdErrWrapper(statusCmd)
+	return rw.statusCmdErrWrapper(
+		key,
+		errtype.RedisUpdateFailed,
+		statusCmd)
 }

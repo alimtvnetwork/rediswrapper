@@ -7,8 +7,9 @@ import (
 
 func (rw *Wrapper) DeleteManyKeys(keys ...string) *errbool.ResultsWithErrorCollection {
 	length := len(keys)
+
 	if length == 0 {
-		return errbool.EmptyResultsWithErrorCollectionPtr()
+		return errbool.EmptyResultsWithErrorCollection()
 	}
 
 	list := make([]bool, 0, length)
@@ -19,11 +20,12 @@ func (rw *Wrapper) DeleteManyKeys(keys ...string) *errbool.ResultsWithErrorColle
 			list,
 			errBool.Value)
 
-		errsCollection.AddWrapperPtr(errBool.ErrorWrapper)
+		errsCollection.AddWrapperPtr(
+			errBool.ErrorWrapper)
 	}
 
 	return &errbool.ResultsWithErrorCollection{
-		Values:        &list,
+		Values:        list,
 		ErrorWrappers: errsCollection,
 	}
 }

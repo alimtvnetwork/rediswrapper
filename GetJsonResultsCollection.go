@@ -3,6 +3,7 @@ package rediswrapper
 import (
 	"encoding/json"
 
+	"gitlab.com/evatix-go/core/coredata/coredynamic"
 	"gitlab.com/evatix-go/core/coredata/corejson"
 	"gitlab.com/evatix-go/errorwrapper"
 	"gitlab.com/evatix-go/errorwrapper/errnew"
@@ -25,8 +26,11 @@ func (rw *Wrapper) GetJsonResultsCollection(
 		&jsonResultsCollection)
 
 	if err2 != nil {
-		return nil, errnew.NewPtr(
-			errtype.Unmarshalling, err2)
+		return nil, errnew.MessagesPtr(
+			errtype.Unmarshalling,
+			err2.Error(),
+			coredynamic.TypeName(jsonResultsCollection),
+			keyValidationMsg(key))
 	}
 
 	return jsonResultsCollection, errnew.EmptyPtr

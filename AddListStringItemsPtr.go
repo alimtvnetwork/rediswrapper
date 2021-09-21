@@ -1,12 +1,26 @@
 package rediswrapper
 
-func (rw *Wrapper) AddListStringItemsPtr(key string, values *[]string) {
-	if values == nil {
+// AddListStringItemsPtr
+//
+// Usages RPUSH to push items.
+// (Redis unordered list, not unique, just list)
+//
+// Reference : https://redis.io/commands/LSET | https://redis.io/commands/RPUSH
+//
+// Retrieve items using
+// ListUsingLimit or List or ListAsCollection
+func (rw *Wrapper) AddListStringItemsPtr(
+	key string,
+	values *[]string,
+) {
+	if values == nil || len(*values) == 0 {
 		return
 	}
 
-	// https://redis.io/commands/LSET
 	for _, value := range *values {
-		rw.client.RPush(rw.ctx, key, value)
+		rw.client.RPush(
+			rw.ctx,
+			key,
+			value)
 	}
 }

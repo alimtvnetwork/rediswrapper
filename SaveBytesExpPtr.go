@@ -1,20 +1,22 @@
 package rediswrapper
 
 import (
-	"gitlab.com/evatix-go/core/constants"
+	"time"
+
 	"gitlab.com/evatix-go/errorwrapper"
 	"gitlab.com/evatix-go/errorwrapper/errtype"
 )
 
-func (rw *Wrapper) SaveString(
+func (rw *Wrapper) SaveBytesExpPtr(
 	key string,
-	stringData string,
+	byteData *[]byte,
+	time time.Duration,
 ) *errorwrapper.Wrapper {
 	statusCmd := rw.client.Set(
 		rw.ctx,
 		key,
-		stringData,
-		constants.Zero)
+		*byteData,
+		time)
 
 	return rw.statusCmdErrWrapper(
 		key,

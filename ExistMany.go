@@ -5,10 +5,13 @@ import (
 	"gitlab.com/evatix-go/errorwrapper/errwrappers"
 )
 
-func (rw *Wrapper) ExistMany(keys ...string) *errbool.ResultsWithErrorCollection {
+func (rw *Wrapper) ExistMany(
+	keys ...string,
+) *errbool.ResultsWithErrorCollection {
 	length := len(keys)
 	if length == 0 {
-		return errbool.EmptyResultsWithErrorCollectionPtr()
+		return errbool.
+			EmptyResultsWithErrorCollection()
 	}
 
 	list := make([]bool, 0, length)
@@ -24,7 +27,7 @@ func (rw *Wrapper) ExistMany(keys ...string) *errbool.ResultsWithErrorCollection
 	}
 
 	return &errbool.ResultsWithErrorCollection{
-		Values:        &list,
+		Values:        list,
 		ErrorWrappers: errsCollection,
 	}
 }

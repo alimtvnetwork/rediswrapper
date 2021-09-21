@@ -1,20 +1,25 @@
 package rediswrapper
 
 import (
-	"gitlab.com/evatix-go/core/constants"
+	"time"
+
 	"gitlab.com/evatix-go/errorwrapper"
 	"gitlab.com/evatix-go/errorwrapper/errtype"
 )
 
-func (rw *Wrapper) SaveString(
+// SaveBytesExp will store bytes in the redis server with expiration.
+//
+// exp 0 means never.
+func (rw *Wrapper) SaveBytesExp(
 	key string,
-	stringData string,
+	byteData []byte,
+	exp time.Duration,
 ) *errorwrapper.Wrapper {
 	statusCmd := rw.client.Set(
 		rw.ctx,
 		key,
-		stringData,
-		constants.Zero)
+		byteData,
+		exp)
 
 	return rw.statusCmdErrWrapper(
 		key,

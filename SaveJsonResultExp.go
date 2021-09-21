@@ -1,6 +1,8 @@
 package rediswrapper
 
 import (
+	"time"
+
 	"gitlab.com/evatix-go/core/coredata/corejson"
 	"gitlab.com/evatix-go/errorwrapper"
 	"gitlab.com/evatix-go/errorwrapper/errnew"
@@ -9,9 +11,10 @@ import (
 	"github.com/evatix-go/rediswrapper/internal/messages"
 )
 
-func (rw *Wrapper) SaveJsonResult(
+func (rw *Wrapper) SaveJsonResultExp(
 	key string,
 	jsonResult *corejson.Result,
+	time time.Duration,
 ) *errorwrapper.Wrapper {
 	if jsonResult == nil {
 		return errorwrapper.NewUsingMessagePtr(
@@ -20,11 +23,11 @@ func (rw *Wrapper) SaveJsonResult(
 	}
 
 	if jsonResult.HasError() {
-		return errnew.MessagesPtr(
-			errtype.JsonSyntaxIssue,
-			jsonResult.MeaningfulError().Error(),
-		)
+		return errnew.ErrPtr(jsonResult.Error)
 	}
 
-	return rw.SaveBytes(key, jsonResult.Bytes)
+	return rw.SaveBytesExp(
+		key,
+		jsonResult.Bytes,
+		time)
 }

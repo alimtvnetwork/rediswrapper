@@ -9,7 +9,7 @@ import (
 func (rw *Wrapper) GetStrHashset(
 	key string,
 ) *errstr.Hashset {
-	jsonResult := rw.GetJsonResult(key)
+	jsonResult := rw.GetAsErrorJsonResult(key)
 	hashset := corestr.EmptyHashset()
 
 	if jsonResult.HasError() {

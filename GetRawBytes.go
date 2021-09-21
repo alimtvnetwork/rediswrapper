@@ -1,7 +1,10 @@
 package rediswrapper
 
-import "gitlab.com/evatix-go/core/defaulterr"
+import (
+	"gitlab.com/evatix-go/core/defaulterr"
+)
 
+// GetRawBytes
 // GetAsUnmarshal will bind the json data with the jsonObj.
 // If Get encounters any errors, it will return the error message.
 func (rw *Wrapper) GetRawBytes(key string) ([]byte, error) {

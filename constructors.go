@@ -10,11 +10,9 @@ import (
 func New(ctx context.Context, options *redis.Options) *Wrapper {
 	rdb := redis.NewClient(options)
 
-	wrapper := &Wrapper{
+	return &Wrapper{
 		ctx:     ctx,
 		client:  rdb,
 		options: options,
 	}
-
-	return wrapper
 }

@@ -1,7 +1,6 @@
 package rediswrapper
 
 import (
-	"gitlab.com/evatix-go/core/constants"
 	"gitlab.com/evatix-go/errorwrapper/errdata/errstr"
 	"gitlab.com/evatix-go/errorwrapper/errnew"
 	"gitlab.com/evatix-go/errorwrapper/errtype"
@@ -14,16 +13,13 @@ func (rw *Wrapper) GetString(
 	currentStr, err := strCmd.Result()
 
 	if err != nil {
-		return &errstr.Result{
-			Value: constants.EmptyString,
-			ErrorWrapper: errnew.
-				NewPtr(errtype.ReadFailed, err),
-		}
+		return errstr.ErrorWrapper(
+			errnew.MessagesPtr(
+				errtype.RedisCrudFailed,
+				errtype.ReadFailed.String(),
+				err.Error(),
+				keyValidationMsg(key)))
 	}
 
-	return &errstr.Result{
-		Value: currentStr,
-		ErrorWrapper: errnew.
-			EmptyPtr,
-	}
+	return errstr.EmptyErrorResult(currentStr)
 }

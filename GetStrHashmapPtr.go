@@ -9,7 +9,7 @@ import (
 func (rw *Wrapper) GetStrHashmapPtr(
 	key string,
 ) *errstr.Hashmap {
-	jsonResult := rw.GetJsonResult(key)
+	jsonResult := rw.GetAsErrorJsonResult(key)
 	hashmap := corestr.EmptyHashmap()
 
 	if jsonResult.HasError() {

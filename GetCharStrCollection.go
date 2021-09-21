@@ -3,8 +3,12 @@ package rediswrapper
 import (
 	"gitlab.com/evatix-go/core/coredata/corejson"
 	"gitlab.com/evatix-go/core/coredata/corestr"
+	"gitlab.com/evatix-go/errorwrapper"
 	"gitlab.com/evatix-go/errorwrapper/errdata/errstr"
 	"gitlab.com/evatix-go/errorwrapper/errnew"
+	"gitlab.com/evatix-go/errorwrapper/errtype"
+
+	"github.com/evatix-go/rediswrapper/internal/rediserrwrapper"
 )
 
 func (rw *Wrapper) GetCharStrCollection(
@@ -17,7 +21,7 @@ func (rw *Wrapper) GetCharStrCollection(
 	if statusCmd == nil {
 		return &errstr.CharCollectionMap{
 			CharCollectionMap: nil,
-			ErrorWrapper:      rw.statusCmdNullError(),
+			ErrorWrapper:      rediserrwrapper.NullEmptyStringCmd,
 		}
 	}
 
@@ -27,15 +31,23 @@ func (rw *Wrapper) GetCharStrCollection(
 	if jsonResult.HasError() {
 		return &errstr.CharCollectionMap{
 			CharCollectionMap: nil,
-			ErrorWrapper:      errnew.ErrPtr(err),
+			ErrorWrapper:      errnew.ErrPtr(jsonResult.MeaningfulError()),
 		}
 	}
 
 	charCollectionMap := corestr.EmptyCharCollectionMap()
 	err2 := charCollectionMap.JsonParseSelfInject(jsonResult)
+	finalErr := errnew.EmptyPtr
+
+	if err2 != nil {
+		finalErr = errnew.MessagesPtr(
+			errtype.Unmarshalling,
+			err2.Error(),
+			errorwrapper.SimpleReferencesCompileOptimized(errtype.KeyValidationFailed, key))
+	}
 
 	return &errstr.CharCollectionMap{
 		CharCollectionMap: charCollectionMap,
-		ErrorWrapper:      errnew.ErrPtr(err2),
+		ErrorWrapper:      finalErr,
 	}
 }

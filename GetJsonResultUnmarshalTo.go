@@ -5,8 +5,6 @@ import (
 	"gitlab.com/evatix-go/errorwrapper/errdata/errjson"
 	"gitlab.com/evatix-go/errorwrapper/errnew"
 	"gitlab.com/evatix-go/errorwrapper/errtype"
-
-	"github.com/evatix-go/rediswrapper/internal/messages"
 )
 
 func (rw *Wrapper) GetJsonResultUnmarshalTo(
@@ -20,20 +18,18 @@ func (rw *Wrapper) GetJsonResultUnmarshalTo(
 	}
 
 	jsonResultWithError := errjson.New(
-		allBytes, err)
-
-	if jsonResultWithError.HasError() {
-		return jsonResultWithError.ErrorWrapper
-	}
-
-	if jsonResultWithError.IsEmptyJsonBytes() {
-		return errnew.MessagesPtr(
-			errtype.Unmarshalling,
-			messages.CannotUnmarshallEmpty)
-	}
+		allBytes,
+		err)
 
 	err2 := jsonResultWithError.
 		Unmarshal(unmarshallingAny)
 
-	return errnew.ErrPtr(err2)
+	if err2.HasError() {
+		return unmarshallingError(
+			key,
+			err2.Error(),
+			unmarshallingAny)
+	}
+
+	return errnew.EmptyPtr
 }

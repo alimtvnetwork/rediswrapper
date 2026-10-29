@@ -69,3 +69,9 @@ It is created to have wrapper functions around the actual go-redis package.
 ## License
 
 [Evatix MIT License](/LICENSE)
+
+## Memory
+
+- .ai-memory/memory/readme.md
+- .ai-memory/memory/learned/01-recent-session-2026-10-29.md
+- .ai-memory/plans/readme.md
